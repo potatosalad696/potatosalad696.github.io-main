@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sierpiński Triangle</title>
+        <link rel="stylesheet" type="text/css" href="sierpinski.css">
+        <script src="libraries/p5.min.js"></script>
+        <script src="libraries/p5.sound.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>Sierpiński Triangle</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Main Menu</a></li>
+                <li><a href="../tree/tree.html">Fractal Tree</a></li>
+                <li><a href="../snowflake/snowflake.html">Koch Snowflake</a></li>
+                <li><a href="../mandelbrot/mandelbrot.html">Mandelbrot Set</a></li>
+            </ul>
+        </nav>
+        <p>Iteration <input type="range" min="0" max="10" value="5" id="iteration"> <span id="txt"></span> iteration(s)</p>
+        <!-- <p>Side Length <input type="range" min="0" max="10" value="5" id="a" step="1"> 400 px</p>
+        <p>Color <input type="color" min="0" max="10" value="5" id="a"> 400 px</p>
+        <p>Background Color <input type="color" min="0" max="10" value="5" id="a"> 400 px</p> -->
+        <script src="sierpinski.js"></script>
+    </body>
+</html>
