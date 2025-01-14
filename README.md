@@ -13,4 +13,4 @@
 - Add styling to the Sierpiński triangle page
 
 ## Beta 1
-- Added Sierpiński triangles
+- Added Sierpiński triangle
