@@ -18,8 +18,8 @@ header {
 
 header h1 {
     font-size: 8vh;
-    font-family: cursive;
     font-weight: 400;
+    font-family: "UnifrakturMaguntia", cursive;
     font-style: normal;
 }
 
@@ -50,4 +50,11 @@ nav ul li a {
 nav ul li:hover {
     background-color: #41ab5d;
     cursor: pointer;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
 }
