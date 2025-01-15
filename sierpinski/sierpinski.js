@@ -1,75 +1,155 @@
 /* SLIDERS */
-var iter = document.getElementById("iteration")
-var txt = document.getElementById("txt")
-txt.innerHTML = iter.value
+var iter = document.getElementById("iteration");
+var txt = document.getElementById("txt");
+txt.innerHTML = iter.value;
 
 iter.oninput = () => {
-    txt.innerHTML = iter.value
-    setup()
-}
+    txt.innerHTML = iter.value;
+    regenerateTriangles(iter.value); // Regenerate triangles only
+};
 
 /* RENDERING */
-let iteration = 0
-let btripoints = [[0, 400, 200, 400 - 200 * Math.sqrt(3), 400, 400]]
-let wtripoints = []
+let btripoints = [];
+let zoom = 1;
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+let dragStartX, dragStartY;
 
-function genverttri() {
-    if (iteration >= iter.value) {
-        btripoints.forEach(drawtri)
-        return
+function genverttri(iterations) {
+    let tempBtripoints = [[0, 400, 200, 400 - 200 * Math.sqrt(3), 400, 400]];
+
+    for (let i = 0; i < iterations; i++) {
+        let newtri = [];
+
+        for (let tri of tempBtripoints) {
+            let mid1 = [(tri[0] + tri[2]) / 2, (tri[1] + tri[3]) / 2];
+            let mid2 = [(tri[2] + tri[4]) / 2, (tri[3] + tri[5]) / 2];
+            let mid3 = [(tri[4] + tri[0]) / 2, (tri[5] + tri[1]) / 2];
+
+            newtri.push([tri[0], tri[1], mid1[0], mid1[1], mid3[0], mid3[1]]);
+            newtri.push([mid1[0], mid1[1], tri[2], tri[3], mid2[0], mid2[1]]);
+            newtri.push([mid3[0], mid3[1], mid2[0], mid2[1], tri[4], tri[5]]);
+        }
+
+        tempBtripoints = newtri;
     }
 
-    iteration += 1
-    let newtri = []
-
-    for (let i = 0; i < btripoints.length; i++) {
-        let mid1 = [
-            (btripoints[i][0] + btripoints[i][2]) / 2,
-            (btripoints[i][1] + btripoints[i][3]) / 2,
-        ]
-        let mid2 = [
-            (btripoints[i][2] + btripoints[i][4]) / 2,
-            (btripoints[i][3] + btripoints[i][5]) / 2,
-        ]
-        let mid3 = [
-            (btripoints[i][4] + btripoints[i][0]) / 2,
-            (btripoints[i][5] + btripoints[i][1]) / 2,
-        ]
-
-        newtri.push([
-            btripoints[i][0], btripoints[i][1],
-            mid1[0], mid1[1],
-            mid3[0], mid3[1],
-        ])
-        newtri.push([
-            mid1[0], mid1[1],
-            btripoints[i][2], btripoints[i][3],
-            mid2[0], mid2[1],
-        ])
-        newtri.push([
-            mid3[0], mid3[1],
-            mid2[0], mid2[1],
-            btripoints[i][4], btripoints[i][5],
-        ])
-    }
-
-    btripoints = newtri
-    genverttri()
+    return tempBtripoints;
 }
 
 function drawtri(item) {
-    triangle(item[0], item[1], item[2], item[3], item[4], item[5])
+    beginShape();
+    for (let i = 0; i < 6; i += 2) {
+        let x = (item[i] - width / 2) * zoom + width / 2 + offsetX;
+        let y = (item[i + 1] - height / 2) * zoom + height / 2 + offsetY;
+        vertex(x, y);
+    }
+    endShape(CLOSE);
 }
 
 function setup() {
-    createCanvas(400, 400)
-    background(255)
-    noStroke()
-    fill(0)
+    createCanvas(400, 400);
+    noStroke();
+    fill(0);
 
-    iteration = 0
-    btripoints = [[0, 400, 200, 400 - 200 * Math.sqrt(3), 400, 400]]
-    wtripoints = []
+    // Generate initial triangles
+    btripoints = genverttri(iter.value);
+}
 
-    genverttri()
+function draw() {
+    background(255);
+    fill(0);
+    btripoints.forEach(drawtri);
+}
+
+// Regenerate triangles without resetting zoom/pan
+function regenerateTriangles(iterations) {
+    btripoints = genverttri(iterations);
+}
+
+// Handle zoom with mouse wheel
+function mouseWheel(event) {
+    if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+        let zoomFactor = 1.1;
+        let prevZoom = zoom;
+
+        if (event.deltaY > 0) {
+            zoom /= zoomFactor; // Zoom out
+        } else {
+            zoom *= zoomFactor; // Zoom in
+        }
+
+        // Adjust offset so zoom centers on mouse position
+        let mouseCanvasX = (mouseX - width / 2 - offsetX) / prevZoom + width / 2;
+        let mouseCanvasY = (mouseY - height / 2 - offsetY) / prevZoom + height / 2;
+
+        offsetX -= (mouseCanvasX - width / 2) * (zoom - prevZoom);
+        offsetY -= (mouseCanvasY - height / 2) * (zoom - prevZoom);
+    }
+
+    return false; // Prevent page scroll if inside canvas
+}
+
+// Handle zooming with trackpad (pinch gestures)
+let prevDist = 0; // To store initial distance of the two fingers
+
+function touchStarted() {
+    if (touches.length == 2) {
+        // Calculate initial distance between two touch points
+        prevDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+    }
+}
+
+function touchMoved() {
+    if (touches.length == 2) {
+        let currDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+
+        if (currDist !== prevDist) {
+            let zoomFactor = 1.1;
+            let prevZoom = zoom;
+            if (currDist > prevDist) {
+                zoom *= zoomFactor; // Pinch out -> Zoom in
+            } else {
+                zoom /= zoomFactor; // Pinch in -> Zoom out
+            }
+
+            // Adjust offset so zoom centers on midpoint of pinch
+            let pinchMidX = (touches[0].x + touches[1].x) / 2;
+            let pinchMidY = (touches[0].y + touches[1].y) / 2;
+            let mouseCanvasX = (pinchMidX - width / 2 - offsetX) / prevZoom + width / 2;
+            let mouseCanvasY = (pinchMidY - height / 2 - offsetY) / prevZoom + height / 2;
+
+            offsetX -= (mouseCanvasX - width / 2) * (zoom - prevZoom);
+            offsetY -= (mouseCanvasY - height / 2) * (zoom - prevZoom);
+        }
+
+        prevDist = currDist;
+    }
+}
+
+function touchEnded() {
+    prevDist = 0;
+}
+
+// Start dragging (only if mouse is inside the canvas)
+function mousePressed() {
+    if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+        isDragging = true;
+        dragStartX = mouseX - offsetX;
+        dragStartY = mouseY - offsetY;
+    }
+}
+
+// Dragging logic (only if dragging started inside the canvas)
+function mouseDragged() {
+    if (isDragging && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+        offsetX = mouseX - dragStartX;
+        offsetY = mouseY - dragStartY;
+    }
+}
+
+// Stop dragging
+function mouseReleased() {
+    isDragging = false;
 }
