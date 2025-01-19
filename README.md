@@ -13,6 +13,4 @@ See [Changelog](changelog.md)
 
 ## Credits
 Made by potatosalad696<br>
-
-Collaborator:<br>
-idkmyname-sys-Klish
+Collaborating with idkmyname-sys-Klish
