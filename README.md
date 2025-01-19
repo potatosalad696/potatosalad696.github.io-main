@@ -1,5 +1,7 @@
 # Fractals!
 ## Features
+<b>Latest version: 1.0.0</b>
+
 - Fractal tree
 - Sierpinski triangle
     - Draggable
@@ -7,9 +9,7 @@
     - Up to 10 iterations
 
 ## Changelog
-### 1.0.0
-- Added Fractal tree with its features
-- Added Sierpinski triangle with its features
+See [Changelog](changelog.md)
 
 ## Credits
 Made by potatosalad696<br>
