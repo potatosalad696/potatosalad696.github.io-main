@@ -3,9 +3,11 @@ var iter = document.getElementById("iteration")
 var txt = document.getElementById("txt")
 txt.innerHTML = iter.value
 
+// var shape = document.getElementById("triangleshape")
+
 iter.oninput = () => {
     txt.innerHTML = iter.value
-    regenerateTriangles(iter.value)
+    regenerateTriangles(iter.value) 
 }
 
 /* RENDERING */
@@ -16,8 +18,18 @@ let offsetY = 0
 let isDragging = false
 let dragStartX, dragStartY
 
-function genverttri(iterations) {
-    let tempBtripoints = [[0, 400, 200, 400 - 200 * Math.sqrt(3), 400, 400]]
+// Triangle Position
+let canvaswidth = 0
+let canvasheight = 0
+let canvasmiddle = 0
+
+function genblacktriangles(iterations) {
+    // Trianle position: s = side length, h = height of canvas: s = 2h/sqrt(3)
+    // Order of points: x1, y1, x2, y2, x3, y3 (Anti Clockwise)
+    // (0, 0) is top left corner
+    let largeBtrisideL = (2 * canvasheight) / (sqrt(3))
+    let largeBtrihalfsideL = largeBtrisideL / 2
+    let tempBtripoints = [[canvasmiddle - largeBtrihalfsideL, canvasheight, canvasmiddle, 0, canvasmiddle + largeBtrihalfsideL, canvasheight]] // canvasheight - (canvasheight/2) * Math.sqrt(2)
 
     for (let i = 0; i < iterations; i++) {
         let newtri = []
@@ -49,11 +61,15 @@ function drawtri(item) {
 }
 
 function setup() {
-    createCanvas(400, 400)
-    noStroke()
-    fill(0)
+    canvaswidth = window.screen.availWidth - 100
+    canvasheight = window.screen.availHeight - 450
+    canvasmiddle = canvaswidth / 2
 
-    btripoints = genverttri(iter.value)
+    createCanvas(canvaswidth, canvasheight)
+    noStroke()
+    fill(1)
+
+    btripoints = genblacktriangles(iter.value)
 }
 
 function draw() {
@@ -63,7 +79,7 @@ function draw() {
 }
 
 function regenerateTriangles(iterations) {
-    btripoints = genverttri(iterations)
+    btripoints = genblacktriangles(iterations)
 }
 
 function mouseWheel(event) {
